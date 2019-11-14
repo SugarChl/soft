@@ -17,6 +17,16 @@ type User struct {
 	Nickname string `gorm:"type:char(50)"`
 }
 
+type Address struct {
+	Id            int    `gorm:"AUTO_INCREMENT;PRIMARY_KEY"`
+	UserId        int    `gorm:"type:int(5)"`
+	Name          string `gorm:"type:char(100)"`
+	Phone         string `gorm:"type:char(100)"`
+	Major         string `gorm:"type:char(100)"`
+	DetailAddress string `gorm:"type:char(200)"`
+	IsDefault     int    `gorm:"type:int(2)"`
+}
+
 var DB *gorm.DB
 
 func InitDB() (*gorm.DB, error) {
@@ -27,6 +37,7 @@ func InitDB() (*gorm.DB, error) {
 
 		db.AutoMigrate(
 			&User{},
+			&Address{},
 		)
 		return db, err
 	}
@@ -34,4 +45,11 @@ func InitDB() (*gorm.DB, error) {
 }
 func (u User) Insert() error {
 	return DB.Create(&u).Error
+}
+
+func (u Address) Insert() error {
+	return DB.Create(&u).Error
+}
+func (u Address) Delete() error {
+	return DB.Delete(&u).Error
 }
