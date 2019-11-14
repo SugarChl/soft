@@ -20,9 +20,15 @@ func main() {
 	route := gin.Default()
 	route.POST("/api/login", Login)
 	route.POST("/api/register", Register)
+	route.POST("/api/user/info/update", UpdateUserInfo)
+	route.POST("/api/user/info/get", GetUserInfo)
+
 	route.POST("/api/address/new", NewAddress)
 	route.POST("/api/address/get", GetAddress)
 	route.POST("/api/address/delete", DeleteAddress)
+	route.POST("/api/address/update", UpdateAddress)
+
+	route.POST("/api/article/new", NewArticle)
 	route.Run(":8090")
 
 }

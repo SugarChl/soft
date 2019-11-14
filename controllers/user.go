@@ -87,6 +87,86 @@ func Register(c *gin.Context) {
 
 }
 
+func GetUserInfo(c *gin.Context) {
+	var post_data struct {
+		Token string
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+
+	var res struct {
+		Nickname string
+		Phone    string
+		Gender   string
+		Sno      string
+		Address  string
+	}
+
+	var u User
+	DB.Model(&User{}).Where("id = ?", user_id).First(&u)
+
+	res.Address = u.Address
+	res.Phone = u.Phone
+	res.Gender = u.Sex
+	res.Sno = u.Sno
+	res.Nickname = u.Nickname
+
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+		"Data":      res,
+	})
+}
+
+func UpdateUserInfo(c *gin.Context) {
+	var post_data struct {
+		Token    string
+		Nickname string
+		Phone    string
+		Major    string
+		Address  string
+		Sno      string
+		Gender   string
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+
+	var u User
+	DB.Model(&User{}).Where("id = ?", user_id).First(&u)
+	u.Address = post_data.Address
+	u.Nickname = post_data.Nickname
+	u.Phone = post_data.Phone
+	u.Sex = post_data.Gender
+	u.Sno = post_data.Sno
+	DB.Save(&u)
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+	})
+}
+
 func NewAddress(c *gin.Context) {
 	var post_data struct {
 		Token         string
@@ -216,6 +296,43 @@ func DeleteAddress(c *gin.Context) {
 			"ErrorCode": 40001,
 		})
 	}
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+	})
+}
+
+func UpdateAddress(c *gin.Context) {
+	var post_data struct {
+		Token         string
+		AddressId     int
+		Name          string
+		Phone         string
+		Major         string
+		DetailAddress string
+		IsDefault     int
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	var address Address
+	DB.Model(&Address{}).Where("user_id = ?", user_id).Where("id = ?", post_data.AddressId).First(&address)
+	address.DetailAddress = post_data.DetailAddress
+	address.IsDefault = post_data.IsDefault
+	address.Major = post_data.Major
+	address.Name = post_data.Name
+	address.Phone = post_data.Phone
+	DB.Save(&address)
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
 	})
