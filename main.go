@@ -29,6 +29,8 @@ func main() {
 	route.POST("/api/address/update", UpdateAddress)
 
 	route.POST("/api/article/new", NewArticle)
+
+	route.GET("/api/community/articles/get", CommunityGetArticles)
 	route.Run(":8090")
 
 }
