@@ -38,7 +38,7 @@ func InitDB() (*gorm.DB, error) {
 		db.AutoMigrate(
 			&User{},
 			&Address{},
-			&Article{},
+			&Goods{},
 		)
 		return db, err
 	}
