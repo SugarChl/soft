@@ -6,6 +6,7 @@ import (
 	. "soft/helper"
 	. "soft/models"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -371,4 +372,51 @@ func UpdateAddress(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
 	})
+}
+
+func GetUserGoods(c *gin.Context) {
+	status := c.Query("status")
+	token := c.Query("token")
+	err, token_data := ParseToken(token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	var goods_status int
+	if status == "unsold" {
+		goods_status = 0
+	} else if status == "sold" {
+		goods_status = 1
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	type a_goods_m struct {
+		Title string
+		Price float32
+		Pic   string
+		Id    int
+	}
+	res := make([]a_goods_m, 0)
+	var user_goods []Goods
+	DB.Model(&Goods{}).Where("user_id = ?", user_id).Where("status = ?", goods_status).Find(&user_goods)
+	for _, c := range user_goods {
+		var a_goods a_goods_m
+		a_goods.Id = c.Id
+		a_goods.Price = c.Price
+		a_goods.Title = c.Title
+		a_goods.Pic = strings.Split(c.Pics, " ")[0]
+		res = append(res, a_goods)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+		"Data":      res,
+	})
+	return
 }

@@ -124,3 +124,46 @@ func NewMsglist(c *gin.Context) {
 		"ChatId":    new_msglist.ChatId,
 	})
 }
+
+func DeleteMsglist(c *gin.Context) {
+	token := c.Query("token")
+	chat := c.Query("chat_id")
+	err, token_data := ParseToken(token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+
+	chat_id, errt := strconv.Atoi(chat)
+	if errt != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+
+	var a_chat MsgList
+	chat_in := DB.Model(&MsgList{}).Where("chat_id = ?", chat_id).First(&a_chat).Error
+	if chat_in == nil {
+		if a_chat.MsgFrom == user_id {
+			a_chat.MsgFrom = -1
+		} else if a_chat.MsgTo == user_id {
+			a_chat.MsgTo = -1
+		}
+		DB.Save(&a_chat)
+		if a_chat.MsgFrom == -1 && a_chat.MsgTo == -1 {
+			if err := a_chat.Delete(); err != nil {
+				fmt.Println(err)
+				c.JSON(http.StatusOK, gin.H{
+					"ErrorCode": 40001,
+				})
+			}
+		}
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+	})
+}

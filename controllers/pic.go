@@ -45,7 +45,7 @@ func ImageUpload(c *gin.Context) {
 	if err != nil {
 		fmt.Println(err)
 		c.JSON(http.StatusOK, gin.H{
-			"ErrorCode": 40300,
+			"ErrorCode": 40002,
 		})
 		return
 	}

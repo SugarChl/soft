@@ -14,3 +14,6 @@ type MsgList struct {
 func (a MsgList) Insert() error {
 	return DB.Create(&a).Error
 }
+func (u MsgList) Delete() error {
+	return DB.Delete(&u).Error
+}

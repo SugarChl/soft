@@ -16,6 +16,9 @@ type Goods struct {
 	Pics             string  `gorm:"type:char(200);DEFAULT:0"`
 	Price            float32 `gorm:"type:float"`
 	SoldNumber       int     `gorm:"type:int(10);DEFAULT:0"`
+	Status           int     `gorm:"type:int(10);DEFAULT:0"` // 0未售出   1已售出  2订单结束
+	BuyerId          int     `gorm:"type:int(10);DEFAULT:0"`
+	BuyTime          int     `gorm:"type:int(10);DEFAULT:0"`
 }
 
 func (a Goods) Insert() error {
