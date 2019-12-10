@@ -54,3 +54,31 @@ func NewGoods(c *gin.Context) {
 		"GoodsId":   new_goods.Id,
 	})
 }
+
+func GetGood(c *gin.Context) {
+	goodid := c.Param("goodid")
+
+	var query_ Goods
+	q_good := DB.Model(&Goods{}).Where("id = ?", goodid).Find(&query_)
+	if q_good == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 42001,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+		"data": gin.H{
+			"GoodId":           query_.Id,
+			"Title":            query_.Title,
+			"Content":          query_.Content,
+			"Price":            query_.Price,
+			"LikeNumber":       query_.LikeNumber,
+			"CollectionNumber": query_.CollectionNumber,
+			"Pics":             strings.Split(query_.Pics, " "),
+			"SoldNumber":       query_.SoldNumber,
+			"SellerId":         query_.UserId,
+		},
+	})
+	return
+}

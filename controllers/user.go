@@ -5,6 +5,7 @@ import (
 	"net/http"
 	. "soft/helper"
 	. "soft/models"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -87,6 +88,36 @@ func Register(c *gin.Context) {
 
 }
 
+func GetHead(c *gin.Context) {
+	param := c.Query("id")
+	var user_id int
+	if len(param) > 10 {
+		err, userdata := ParseToken(param)
+		if err != 0 {
+			c.JSON(http.StatusOK, gin.H{
+				"ErrorCode": err,
+			})
+			return
+		}
+		user_id = int(userdata["userid"].(float64))
+	} else {
+		user_id, _ = strconv.Atoi(param)
+	}
+	var query_ User
+	q := DB.Model(&User{}).Where("id = ?", user_id).Find(&query_)
+	if q == nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 42001,
+		})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 42001,
+		"Head":      query_.Head,
+	})
+	return
+}
+
 func GetUserInfo(c *gin.Context) {
 	var post_data struct {
 		Token string
@@ -112,6 +143,7 @@ func GetUserInfo(c *gin.Context) {
 		Gender   string
 		Sno      string
 		Address  string
+		Head     string
 	}
 
 	var u User
@@ -122,6 +154,7 @@ func GetUserInfo(c *gin.Context) {
 	res.Gender = u.Sex
 	res.Sno = u.Sno
 	res.Nickname = u.Nickname
+	res.Head = u.Head
 
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
@@ -138,6 +171,7 @@ func UpdateUserInfo(c *gin.Context) {
 		Address  string
 		Sno      string
 		Gender   string
+		Head     string
 	}
 	if err := c.BindJSON(&post_data); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -161,6 +195,7 @@ func UpdateUserInfo(c *gin.Context) {
 	u.Phone = post_data.Phone
 	u.Sex = post_data.Gender
 	u.Sno = post_data.Sno
+	u.Head = post_data.Head
 	DB.Save(&u)
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
@@ -242,7 +277,7 @@ func GetAddress(c *gin.Context) {
 		IsDefault     int
 		Major         string
 	}
-	var res []address_data
+	res := make([]address_data, 0)
 	DB.Model(&Address{}).Where("user_id = ?", user_id).Find(&address)
 	for _, c := range address {
 		var a_data address_data

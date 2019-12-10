@@ -15,6 +15,7 @@ type User struct {
 	Address  string `gorm:"type:char(100)"`
 	Phone    string `gorm:"type:char(20)"`
 	Nickname string `gorm:"type:char(50)"`
+	Head     string `gorm:"type:char(100)"`
 }
 
 type Address struct {
@@ -39,6 +40,8 @@ func InitDB() (*gorm.DB, error) {
 			&User{},
 			&Address{},
 			&Goods{},
+			&Message{},
+			&MsgList{},
 		)
 		return db, err
 	}

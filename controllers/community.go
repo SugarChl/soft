@@ -5,6 +5,8 @@ import (
 	"net/http"
 	//. "soft/helper"
 	. "soft/models"
+	"strings"
+
 	//"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,7 +16,7 @@ func CommunityGetGoods(c *gin.Context) {
 	type Res_Goods struct {
 		GoodsId    int
 		Title      string
-		Pics       []string
+		Pics       string
 		Price      float32
 		SoldNumber int
 		Content    string
@@ -29,7 +31,7 @@ func CommunityGetGoods(c *gin.Context) {
 		a_data.Title = c.Title
 		a_data.Price = c.Price
 		a_data.Content = c.Content
-
+		a_data.Pics = strings.Split(c.Pics, " ")[0]
 		res = append(res, a_data)
 	}
 	c.JSON(http.StatusOK, gin.H{
