@@ -298,6 +298,53 @@ func GetAddress(c *gin.Context) {
 	return
 }
 
+func GetDelaultAddress(c *gin.Context) {
+	var post_data struct {
+		Token string
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	var address []Address
+	type address_data struct {
+		Id            int
+		Name          string
+		DetailAddress string
+		Phone         string
+		IsDefault     int
+		Major         string
+	}
+	res := make([]address_data, 0)
+	DB.Model(&Address{}).Where("user_id = ?", user_id).Where("is_default = 1").Find(&address)
+	for _, c := range address {
+		var a_data address_data
+		a_data.Name = c.Name
+		a_data.Phone = c.Phone
+		a_data.Id = c.Id
+		a_data.DetailAddress = c.DetailAddress
+		a_data.IsDefault = c.IsDefault
+		a_data.Major = c.Major
+		res = append(res, a_data)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+		"data":      res,
+	})
+	return
+}
+
 func DeleteAddress(c *gin.Context) {
 	var post_data struct {
 		Token     string
@@ -374,8 +421,7 @@ func UpdateAddress(c *gin.Context) {
 	})
 }
 
-func GetUserGoods(c *gin.Context) {
-	status := c.Query("status")
+func GetUserPurchaseGoods(c *gin.Context) {
 	token := c.Query("token")
 	err, token_data := ParseToken(token)
 	if err != 0 {
@@ -385,32 +431,64 @@ func GetUserGoods(c *gin.Context) {
 		return
 	}
 	user_id := int(token_data["userid"].(float64))
-	var goods_status int
-	if status == "unsold" {
-		goods_status = 0
-	} else if status == "sold" {
-		goods_status = 1
-	} else {
-		c.JSON(http.StatusOK, gin.H{
-			"ErrorCode": 40002,
-		})
-		return
-	}
 	type a_goods_m struct {
-		Title string
-		Price float32
-		Pic   string
-		Id    int
+		Title  string
+		Price  float32
+		Pic    string
+		Id     int
+		Status int
+		Time   string
 	}
 	res := make([]a_goods_m, 0)
 	var user_goods []Goods
-	DB.Model(&Goods{}).Where("user_id = ?", user_id).Where("status = ?", goods_status).Find(&user_goods)
+	DB.Model(&Goods{}).Where("buy_id = ?", user_id).Find(&user_goods)
 	for _, c := range user_goods {
 		var a_goods a_goods_m
 		a_goods.Id = c.Id
 		a_goods.Price = c.Price
 		a_goods.Title = c.Title
 		a_goods.Pic = strings.Split(c.Pics, " ")[0]
+		a_goods.Status = c.Status
+		a_goods.Time = TimeStampToDate(c.UploadTime)
+		res = append(res, a_goods)
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+		"Data":      res,
+	})
+	return
+}
+
+func GetUserSaleGoods(c *gin.Context) {
+	token := c.Query("token")
+	err, token_data := ParseToken(token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	type a_goods_m struct {
+		Title  string
+		Price  float32
+		Pic    string
+		Id     int
+		Status int
+		Time   string
+	}
+	res := make([]a_goods_m, 0)
+	var user_goods []Goods
+	DB.Model(&Goods{}).Where("user_id = ?", user_id).Find(&user_goods)
+	for _, c := range user_goods {
+		var a_goods a_goods_m
+		a_goods.Id = c.Id
+		a_goods.Price = c.Price
+		a_goods.Title = c.Title
+		a_goods.Pic = strings.Split(c.Pics, " ")[0]
+		a_goods.Status = c.Status
+		a_goods.Time = TimeStampToDate(c.UploadTime)
 		res = append(res, a_goods)
 	}
 

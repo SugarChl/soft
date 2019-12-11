@@ -166,6 +166,13 @@ func ComfirmTrade(c *gin.Context) {
 		})
 		return
 	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
 	user_id := int(token_data["userid"].(float64))
 	var query_ Goods
 	good_in := DB.Model(&Goods{}).Where("id = ?", post_data.GoodsId).Where("user_id = ?", user_id).First(&query_).Error

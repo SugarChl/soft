@@ -23,10 +23,12 @@ func main() {
 	route.POST("/api/user/info/update", UpdateUserInfo)
 	route.POST("/api/user/info/get", GetUserInfo)
 	route.GET("/api/user/head/:id", GetHead)
-	route.GET("/api/user/goods", GetUserGoods)
+	route.GET("/api/user/goods/sale", GetUserSaleGoods)
+	route.GET("/api/user/goods/purchase", GetUserPurchaseGoods)
 
 	route.POST("/api/address/new", NewAddress)
 	route.POST("/api/address/get", GetAddress)
+	route.POST("/api/address/get_default", GetDelaultAddress)
 	route.POST("/api/address/delete", DeleteAddress)
 	route.POST("/api/address/update", UpdateAddress)
 
@@ -40,7 +42,7 @@ func main() {
 	route.POST("/api/file/upload", ImageUpload)
 	route.GET("/api/file/:fileid", GetImage)
 
-	route.DELETE("/api/msglist", DeleteMsglist)
+	route.POST("/api/msglist", DeleteMsglist)
 	route.GET("/api/msglist", GetMsglist)
 	route.POST("/api/chat/new", NewMsglist)
 	route.POST("/api/message", SendMessage)
