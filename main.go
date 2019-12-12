@@ -36,6 +36,8 @@ func main() {
 	route.GET("/api/good/:goodid", GetGood)
 	route.POST("/api/goods/buy", BuyGood)
 	route.POST("/api/goods/confirm", ComfirmTrade)
+	route.POST("/api/trade/cancel", CancelTrade)
+	route.POST("/api/goods/delete", DeleteTrade)
 
 	route.GET("/api/community/get", CommunityGetGoods)
 

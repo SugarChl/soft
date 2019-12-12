@@ -416,6 +416,10 @@ func UpdateAddress(c *gin.Context) {
 	address.Name = post_data.Name
 	address.Phone = post_data.Phone
 	DB.Save(&address)
+	if post_data.IsDefault == 1 {
+		fmt.Println(address.Id)
+		DB.Model(&Address{}).Where("user_id = ?", user_id).Where("is_default = ?", 1).Not("id = ?", address.Id).Update("is_default", 0)
+	}
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
 	})
@@ -432,12 +436,13 @@ func GetUserPurchaseGoods(c *gin.Context) {
 	}
 	user_id := int(token_data["userid"].(float64))
 	type a_goods_m struct {
-		Title  string
-		Price  float32
-		Pic    string
-		Id     int
-		Status int
-		Time   string
+		Title    string
+		Price    float32
+		Pic      string
+		Id       int
+		Status   int
+		SellerId int
+		Time     string
 	}
 	res := make([]a_goods_m, 0)
 	var user_goods []Goods
@@ -450,6 +455,7 @@ func GetUserPurchaseGoods(c *gin.Context) {
 		a_goods.Pic = strings.Split(c.Pics, " ")[0]
 		a_goods.Status = c.Status
 		a_goods.Time = TimeStampToDate(c.UploadTime)
+		a_goods.SellerId = c.UserId
 		res = append(res, a_goods)
 	}
 
@@ -471,12 +477,13 @@ func GetUserSaleGoods(c *gin.Context) {
 	}
 	user_id := int(token_data["userid"].(float64))
 	type a_goods_m struct {
-		Title  string
-		Price  float32
-		Pic    string
-		Id     int
-		Status int
-		Time   string
+		Title   string
+		Price   float32
+		Pic     string
+		Id      int
+		Status  int
+		Time    string
+		BuyerId int
 	}
 	res := make([]a_goods_m, 0)
 	var user_goods []Goods
@@ -489,6 +496,11 @@ func GetUserSaleGoods(c *gin.Context) {
 		a_goods.Pic = strings.Split(c.Pics, " ")[0]
 		a_goods.Status = c.Status
 		a_goods.Time = TimeStampToDate(c.UploadTime)
+		if c.Status == 0 {
+			a_goods.BuyerId = -1
+		} else {
+			a_goods.BuyerId = c.BuyerId
+		}
 		res = append(res, a_goods)
 	}
 

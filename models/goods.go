@@ -24,3 +24,7 @@ type Goods struct {
 func (a Goods) Insert() error {
 	return DB.Create(&a).Error
 }
+
+func (a Goods) Delete() error {
+	return DB.Delete(&a).Error
+}

@@ -189,3 +189,88 @@ func ComfirmTrade(c *gin.Context) {
 	})
 	return
 }
+
+func CancelTrade(c *gin.Context) {
+	var post_data struct {
+		Token   string
+		GoodsId int
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	var query_ Goods
+	good_in := DB.Model(&Goods{}).Where("id = ?", post_data.GoodsId).Where("buyer_id = ?", user_id).First(&query_).Error
+	if good_in != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 42001,
+		})
+		return
+	}
+	if query_.Status == 2 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 46001,
+		})
+		return
+	}
+	query_.Status = 0
+	DB.Save(&query_)
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+	})
+	return
+}
+
+func DeleteTrade(c *gin.Context) {
+	var post_data struct {
+		Token   string
+		GoodsId int
+	}
+	if err := c.BindJSON(&post_data); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40002,
+		})
+		return
+	}
+	err, token_data := ParseToken(post_data.Token)
+	if err != 0 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": err,
+		})
+		return
+	}
+	user_id := int(token_data["userid"].(float64))
+	var query_ Goods
+	good_in := DB.Model(&Goods{}).Where("id = ?", post_data.GoodsId).Where("user_id = ?", user_id).First(&query_).Error
+	if good_in != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 42001,
+		})
+		return
+	}
+	if query_.Status == 2 {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 46001,
+		})
+		return
+	}
+	if err := query_.Delete(); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 40001,
+		})
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"ErrorCode": 0,
+	})
+	return
+}
