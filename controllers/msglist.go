@@ -100,10 +100,16 @@ func NewMsglist(c *gin.Context) {
 	user_id := int(token_data["userid"].(float64))
 
 	var msgtoUser User
-	user_in_db := DB.Model(&User{}).Where("user_id = ?", post_data.MsgTo).Find(&msgtoUser).Error
+	user_in_db := DB.Model(&User{}).Where("id = ?", post_data.MsgTo).Find(&msgtoUser).Error
 	if user_in_db != nil {
 		c.JSON(http.StatusOK, gin.H{
 			"ErrorCode": 42001,
+		})
+		return
+	}
+	if post_data.MsgTo == user_id {
+		c.JSON(http.StatusOK, gin.H{
+			"ErrorCode": 46002,
 		})
 		return
 	}
@@ -117,12 +123,14 @@ func NewMsglist(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"ErrorCode": 40001,
 		})
+		return
 	}
 	DB.Find(&new_msglist)
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 0,
 		"ChatId":    new_msglist.ChatId,
 	})
+	return
 }
 
 func DeleteMsglist(c *gin.Context) {

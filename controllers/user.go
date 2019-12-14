@@ -115,6 +115,7 @@ func GetHead(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"ErrorCode": 42001,
 		"Head":      query_.Head,
+		"Nickname":  query_.Nickname,
 	})
 	return
 }
@@ -446,7 +447,7 @@ func GetUserPurchaseGoods(c *gin.Context) {
 	}
 	res := make([]a_goods_m, 0)
 	var user_goods []Goods
-	DB.Model(&Goods{}).Where("buy_id = ?", user_id).Find(&user_goods)
+	DB.Model(&Goods{}).Where("buyer_id = ?", user_id).Find(&user_goods)
 	for _, c := range user_goods {
 		var a_goods a_goods_m
 		a_goods.Id = c.Id

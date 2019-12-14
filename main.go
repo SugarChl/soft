@@ -22,7 +22,7 @@ func main() {
 	route.POST("/api/register", Register)
 	route.POST("/api/user/info/update", UpdateUserInfo)
 	route.POST("/api/user/info/get", GetUserInfo)
-	route.GET("/api/user/head/:id", GetHead)
+	route.GET("/api/user/head_nickname:id", GetHead)
 	route.GET("/api/user/goods/sale", GetUserSaleGoods)
 	route.GET("/api/user/goods/purchase", GetUserPurchaseGoods)
 

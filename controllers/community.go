@@ -23,7 +23,7 @@ func CommunityGetGoods(c *gin.Context) {
 	}
 	var res []Res_Goods
 	var goods []Goods
-	DB.Limit(10).Find(&goods)
+	DB.Model(&Goods{}).Not("status = 0").Order("upload_time desc").Limit(10).Find(&goods)
 	for _, c := range goods {
 		var a_data Res_Goods
 		a_data.GoodsId = c.Id

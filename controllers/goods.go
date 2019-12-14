@@ -5,7 +5,8 @@ import (
 	"net/http"
 	. "soft/helper"
 	. "soft/models"
-	"strings"
+
+	//"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -17,7 +18,7 @@ func NewGoods(c *gin.Context) {
 		Title   string
 		Content string
 		Price   float32
-		Pics    []string
+		Pics    string
 	}
 	if err := c.BindJSON(&post_data); err != nil {
 		c.JSON(http.StatusOK, gin.H{
@@ -32,7 +33,6 @@ func NewGoods(c *gin.Context) {
 		})
 		return
 	}
-
 	user_id := int(token_data["userid"].(float64))
 	new_goods := Goods{
 		Title:      post_data.Title,
@@ -40,7 +40,7 @@ func NewGoods(c *gin.Context) {
 		UserId:     user_id,
 		UploadTime: int(time.Now().Unix()),
 		Price:      post_data.Price,
-		Pics:       strings.Join(post_data.Pics, " "),
+		Pics:       post_data.Pics, //strings.Join(pic_list, " "),
 	}
 	if err := new_goods.Insert(); err != nil {
 		fmt.Println(err)
